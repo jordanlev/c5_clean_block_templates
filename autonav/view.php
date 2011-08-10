@@ -4,14 +4,17 @@
 $menuUlClass = 'nav'; //CSS class for the nav menu's <ul> element.
 $navSelectedClass = 'nav-selected'; //CSS class for the page currently being viewed (applied to the <li> AND <a> elements)
 $navPathSelectedClass = 'nav-path-selected'; //CSS class for the page currently being viewed AND that page's parent/grandparent/etc. (applied to the <li> AND <a> elements)
-$firstLiInUlClass = 'nav-first'; //CSS Class for the first item in any UL (so first item of the top-level, and the first item of each dropdown, etc.)
+$firstLiInUlClass = 'nav-first'; //CSS Class for the first item in any UL (first item of the top-level, and the first item of each dropdown, etc.)
 $everyItemUniqueClassPrefix = 'nav-item-'; //Prepended to each item's collection id (leave blank if you don't want a unique class for each item).
 
+$bottomOfDropdownsMarkup = ''; //HTML inserted at the bottom of each dropdown menu (items below the top-level) -- use this if you need non-semantic markup for rounded corners, drop-shadows, etc.
+
+//The following attribute handles are NOT installed by Concrete5
+// (if you want to use them, you must set them up via Dashboard -> Pages and Themes -> Attributes)
 $excludeChildrenFromNavAttrHandle = 'exclude_subpages_from_nav'; //Attribute that denotes a page should be excluded from the nav menu (will also exclude the page's children/grandchildren/etc.)
 $replaceLinkWithFirstInNavAttrHandle = 'replace_link_with_first_in_nav'; //Attribute that denotes all of a page's children/grandchildren/etc. should be excluded from the nav menu
-$navItemClassAttrHandle = 'nav_item_class';
+$navItemClassAttrHandle = 'nav_item_class'; //Attribute that allows end-users to provide a specific class name for a page
 
-$bottomOfDropdownsMarkup = ''; //HTML inserted at the bottom of each dropdown menu (items below the top-level) -- use this if you need non-semantic markup for rounded corners, drop-shadows, etc.
 
 
 /*** SAMPLE CODE FOR "HARD-CODING" A SINGLE-LEVEL OR TWO-LEVEL DROPDOWN MENU INTO YOUR THEME TEMPLATES:
@@ -27,7 +30,7 @@ $nav->render('view');
 END SAMPLE CODE */
 
 
-/*** Jordan's notes for implementing Superfish dropdown menu...
+/*** Jordan's notes for implementing Superfish dropdown menu from scratch...
 * Download jquery superfish plugin from http://users.tpg.com.au/j_birch/plugins/superfish/ (then click "Download & Support" tab)
   (Note that jQuery is only used for IE6 compatibility and optional visual effects -- you can just use its CSS if you don't care about IE6 or fancy stuff like dropdown menu fade-ins or dynamically-drawn arrows)
 * Copy superfish.js and hoverIntent.js files to your theme's 'js' directory
@@ -51,7 +54,7 @@ END SAMPLE CODE */
     </script>
 * MODIFY "DEMO SKIN" portion of superfish.css to accomodate your site (or remove it entirely if you've already styled the non-dropdown menu in yer css)
 * Set width (and height) of submenus via the 4 comments containing the word "match" in the "ESSENTIAL STYLES" section of the css -- these need to be tweaked as per your theme's style
-  [note that this is not optional: all 3 "match ul width" ones MUST actually match, otherwise the menu will not look right!]
+  Note that this is not optional: all 3 "match ul width" numbers MUST be the same, otherwise the menu will not look right!
 
 ==POTENTIAL CSS PROBS:
 ~Use firebug -- for example, superfish overwrites margin and padding to 0, but I had padding on my elements -- so just wrap the thing in a div and style that div instead.
