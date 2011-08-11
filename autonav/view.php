@@ -1,12 +1,17 @@
 <?php defined('C5_EXECUTE') or die("Access Denied.");
 
-//Settings for designers...
+//Set your desired class names...
 $menuUlClass = 'nav'; //CSS class for the nav menu's <ul> element.
 $navSelectedClass = 'nav-selected'; //CSS class for the page currently being viewed (applied to the <li> AND <a> elements)
 $navPathSelectedClass = 'nav-path-selected'; //CSS class for the page currently being viewed AND that page's parent/grandparent/etc. (applied to the <li> AND <a> elements)
 $firstLiInUlClass = 'nav-first'; //CSS Class for the first item in any UL (first item of the top-level, and the first item of each dropdown, etc.)
 $everyItemUniqueClassPrefix = 'nav-item-'; //Prepended to each item's collection id (leave blank if you don't want a unique class for each item).
 
+//Add any non-semantic markup that should be inserted in each link...
+$beforeOutsideEveryATagMarkup = ''; //<li>[THIS STUFF GOES HERE]<a href="url">text</a></li>
+$afterOutsideEveryATagMarkup = ''; //<li><a href="url">text</a>[THIS STUFF GOES HERE]</li>
+$beforeInsideEveryATagMarkup = ''; //<li><a href="url">[THIS STUFF GOES HERE]text</a></li>
+$afterInsideEveryATagMarkup = ''; //<li><a href="url">text[THIS STUFF GOES HERE]</a></li>
 $bottomOfDropdownsMarkup = ''; //HTML inserted at the bottom of each dropdown menu (items below the top-level) -- use this if you need non-semantic markup for rounded corners, drop-shadows, etc.
 
 //The following attribute handles are NOT installed by Concrete5
@@ -182,7 +187,13 @@ foreach($navItems as $ni) {
 
 		//Output the opening <li> tag and the page link
 		echo '<li class="' . $navItemClasses . '">';
-		echo '<a class="' . $navItemClasses . '" href="' . $pageLink . '" target="' . $target . '">' . $pageName . '</a>';
+		echo $beforeOutsideEveryATagMarkup;
+		echo '<a class="' . $navItemClasses . '" href="' . $pageLink . '" target="' . $target . '">';
+		echo $beforeInsideEveryATagMarkup;
+		echo $pageName;
+		echo $afterInsideEveryATagMarkup;
+		echo '</a>';
+		echo $afterOutsideEveryATagMarkup;
 		//Note that we're not outputting the closing </li> tag here
 		// because we might need to put in a sub-menu (<ul>) first.
 		// The closing </li> tag will be outputted later on
