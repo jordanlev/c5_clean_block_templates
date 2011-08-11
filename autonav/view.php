@@ -73,6 +73,7 @@ $navItems = $controller->generateNav();
 $c = Page::getCurrentPage();
 $isFirstItem = true;
 $isFirstLiInUl = true;
+$lastLevel = 0;
 $excluded_parent_level = 9999; //Arbitrarily high number denotes that we're NOT currently excluding a parent (because all actual page levels will be lower than this)
 $exclude_children_below_level = 9999; //Same deal as above. Note that in this case "below" means a HIGHER number (because a lower number indicates higher placement in the sitemp -- e.g. 0 is top-level)
 $nh = Loader::helper('navigation');
@@ -126,9 +127,9 @@ foreach($navItems as $ni) {
 					echo '</li>';
 				}
 			}
-		} else if ($i > 0) {
+		} else if (!$isFirstItem) {
 			echo '</li>';
-		}
+		} //if this is the first item, the closing </li> tag will be outputted down at the bottom (after the "foreach($navItems as $ni)" loop)
 		
 
 		//PREP DATA FOR NAV ITEM OUTPUT...
@@ -179,15 +180,13 @@ foreach($navItems as $ni) {
 		}
 		$navItemClasses = implode(" ", $navItemClassArray);
 
-		//List Item Output...
-		?>
-
-		<li class="<?php echo $navItemClasses; ?>">
-			<a class="<?php echo $navItemClasses; ?>" href="<?php echo $pageLink; ?>" target="<?php echo $target; ?>"><?php echo $pageName; ?></a>
-		</li>
-
-		<?php
-		//END List Item Output
+		//Output the opening <li> tag and the page link
+		echo '<li class="' . $navItemClasses . '">';
+		echo '<a class="' . $navItemClasses . '" href="' . $pageLink . '" target="' . $target . '">' . $pageName . '</a>';
+		//Note that we're not outputting the closing </li> tag here
+		// because we might need to put in a sub-menu (<ul>) first.
+		// The closing </li> tag will be outputted later on
+		
 		
 		//Prep variables for the next loop iteration
 		$lastLevel = $thisLevel;
@@ -196,10 +195,9 @@ foreach($navItems as $ni) {
 	}
 }
 
-//Output closing list tags if there was at least one nav item
-$thisLevel = 0;
-if (!$isFirstItem) {
-	for ($i = $thisLevel; $i <= $lastLevel; $i++) {
+//Output closing list tags if necessary
+if (count($navItems) > 0) {
+	for ($i = 0; $i <= $lastLevel; $i++) {
 		echo '</li>';
 		echo ($lastLevel > 0 && $i == 0) ? $bottomOfDropdownsMarkup : '';
 		echo '</ul>';
