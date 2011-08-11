@@ -1,11 +1,17 @@
 <?php defined('C5_EXECUTE') or die("Access Denied.");
 
-//Set your desired class names...
-$menuUlClass = 'nav'; //CSS class for the nav menu's <ul> element.
+
+/************************
+ * SETTINGS FOR DESIGNERS
+ ************************/
+
+ //Set your desired class names...
+$menuUlClass = 'nav'; //CSS class for the nav menu's <ul> element
 $navSelectedClass = 'nav-selected'; //CSS class for the page currently being viewed (applied to the <li> AND <a> elements)
 $navPathSelectedClass = 'nav-path-selected'; //CSS class for the page currently being viewed AND that page's parent/grandparent/etc. (applied to the <li> AND <a> elements)
+$hasChildrenClass = 'nav-has-submenu'; //CSS class for items that have children (sub-pages)
 $firstLiInUlClass = 'nav-first'; //CSS Class for the first item in any UL (first item of the top-level, and the first item of each dropdown, etc.)
-$everyItemUniqueClassPrefix = 'nav-item-'; //Prepended to each item's collection id (leave blank if you don't want a unique class for each item).
+$everyItemUniqueClassPrefix = 'nav-item-'; //Prepended to each item's collection id (leave blank if you don't want a unique class for each item)
 
 //Add any non-semantic markup that should be inserted in each link...
 $beforeOutsideEveryATagMarkup = ''; //<li>[THIS STUFF GOES HERE]<a href="url">text</a></li>
@@ -21,8 +27,11 @@ $replaceLinkWithFirstInNavAttrHandle = 'replace_link_with_first_in_nav'; //Attri
 $navItemClassAttrHandle = 'nav_item_class'; //Attribute that allows end-users to provide a specific class name for a page
 
 
+/*********************
+ * NOTES FOR DESIGNERS
+ *********************/
 
-/*** SAMPLE CODE FOR "HARD-CODING" A SINGLE-LEVEL OR TWO-LEVEL DROPDOWN MENU INTO YOUR THEME TEMPLATES:
+/* SAMPLE CODE FOR "HARD-CODING" A SINGLE-LEVEL OR TWO-LEVEL DROPDOWN MENU INTO YOUR THEME TEMPLATES:
 <?php
 $nav = BlockType::getByHandle('autonav');
 $nav->controller->orderBy = 'display_asc';
@@ -157,34 +166,42 @@ foreach($navItems as $ni) {
 		$target = $ni->getTarget();
 		$target = empty($target) ? '_self' : $target;
 		
-		//CSS Classes
+		
+		//CSS Classes...
 		$navItemClassArray = array();
+		
 		if (!empty($everyItemUniqueClassPrefix)) {
 			$navItemClassArray[] = $everyItemUniqueClassPrefix . $_c->getCollectionID();
 		}
+		
 		if ($isFirstLiInUl && !empty($firstLiInUlClass)) {
 			$navItemClassArray[] = $firstLiInUlClass;
 		}
+		
+		if ($ni->hasChildren() && !empty($hasChildrenClass)) {
+			$navItemClassArray[] = $hasChildrenClass;
+		}
+		
 		if (!empty($navItemClassAttrHandle)) {
 			$attributeClass = $_c->getCollectionAttributeValue($navItemClassAttrHandle);
 			if (!empty($attributeClass)) {
 				$navItemClassArray[] = $attributeClass;
 			}
 		}
+		
 		if ($c->getCollectionID() == $_c->getCollectionID()) {
 			//This nav item is for the page being viewed
-			if (!empty($navSelectedClass)) {
-				$navItemClassArray[] = $navSelectedClass;
-			}
-			if (!empty($navPathSelectedClass)) {
-				$navItemClassArray[] = $navPathSelectedClass;
-			}
+			$navItemClassArray[] = $navSelectedClass;
+			$navItemClassArray[] = $navPathSelectedClass;
 		} else if (in_array($_c->getCollectionID(), $selectedPathCIDs)) {
 			//This nav item is for a parent/grandparent of the page being viewed
 			$navItemClassArray[] = $navPathSelectedClass;
 		}
+		
 		$navItemClasses = implode(" ", $navItemClassArray);
-
+		//END CSS Classes
+		
+		
 		//Output the opening <li> tag and the page link
 		echo '<li class="' . $navItemClasses . '">';
 		echo $beforeOutsideEveryATagMarkup;
