@@ -41,8 +41,8 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		// Prepare data for each page being listed...
 		$title = $th->entities($page->getCollectionName());
 		$url = $nh->getLinkToCollection($page);
-		$target = $page->getAttribute('nav_target');
-		$target = ($page->getCollectionPointerExternalLink() != '' && $page->openCollectionPointerExternalLinkInNewWindow()) ? '_blank' : (empty($target) ? '_self' : $target);
+		$target = ($page->getCollectionPointerExternalLink() != '' && $page->openCollectionPointerExternalLinkInNewWindow()) ? '_blank' : $page->getAttribute('nav_target');
+		$target = empty($target) ? '_self' : $target;
 		$description = $page->getCollectionDescription();
 		$description = $controller->truncateSummaries ? $th->shorten($description, $controller->truncateChars) : $description;
 		$description = $th->entities($description);
