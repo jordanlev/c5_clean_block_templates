@@ -1,7 +1,22 @@
 <?php
-/************************************************************
- * DESIGNERS: SCROLL DOWN! (IGNORE ALL THIS STUFF AT THE TOP)
- ************************************************************/
+//For extra functionality, you can add the following page attributes (via Dashboard -> Pages and Themes -> Attributes):
+//
+// 1) Handle: replace_link_with_first_in_nav
+//    Type: Checkbox
+//    Functionality: If a page has this checked, clicking on it in the nav menu will go to its first child (sub-page) instead.
+//
+// 2) Handle: exclude_subpages_from_nav
+//    Type: Checkbox
+//    Functionality: If a page has this checked, all of that pages children (sub-pages) will be excluded from the nav (but the page itself will be included).
+//
+// 3) Handle: nav_item_class
+//    Type: Text
+//    Functionality: Whatever is entered into this textbox will be outputted as an additional CSS class for that page's nav item.
+
+
+/*************************************************
+ * DESIGNERS: SCROLL DOWN! (IGNORE ALL THIS STUFF)
+ *************************************************/
 defined('C5_EXECUTE') or die("Access Denied.");
 
 $c = Page::getCurrentPage();
@@ -47,7 +62,7 @@ foreach ($allNavItems as $ni) {
 	}
 }
 
-//Prep all data and put it into a clean data structure so markup output is as simple as possible
+//Prep all data and put it into a clean structure so markup output is as simple as possible
 $navItems = array();
 $navItemCount = count($includedNavItems);
 for ($i = 0; $i < $navItemCount; $i++) {
@@ -108,7 +123,7 @@ for ($i = 0; $i < $navItemCount; $i++) {
 	} //If loop ends before one of the "if" conditions is hit, then this is the last in its level (and $is_last_in_level stays true)
 	
 	
-	//CSS classes...
+	//CSS classes
 	$attribute_class = $_c->getAttribute('nav_item_class');
 	$cid = $_c->getCollectionID();
 	$classes = array();
@@ -178,7 +193,7 @@ foreach ($navItems as $ni) {
 	
 	echo '<li class="' . $ni->classes . '">'; //opens the nav item
 	
-	echo '<a href="' . $ni->url . '" target="' . $ni->target . '" class="' . $ni->classes . '">' . $ni->name . '</a>'; //link to page
+	echo '<a href="' . $ni->url . '" target="' . $ni->target . '" class="' . $ni->classes . '">' . $ni->name . '</a>';
 	
 	if ($ni->children) {
 		echo '<ul>'; //opens a dropdown sub-menu
