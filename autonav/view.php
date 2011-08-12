@@ -1,235 +1,191 @@
-<?php defined('C5_EXECUTE') or die("Access Denied.");
-
-
-/************************
- * SETTINGS FOR DESIGNERS
- ************************/
-
- //Set your desired class names...
-$menuUlClass = 'nav'; //CSS class for the nav menu's <ul> element
-$navSelectedClass = 'nav-selected'; //CSS class for the page currently being viewed (applied to the <li> AND <a> elements)
-$navPathSelectedClass = 'nav-path-selected'; //CSS class for the page currently being viewed AND that page's parent/grandparent/etc. (applied to the <li> AND <a> elements)
-$hasChildrenClass = 'nav-has-submenu'; //CSS class for items that have children (sub-pages)
-$firstLiInUlClass = 'nav-first'; //CSS Class for the first item in any UL (first item of the top-level, and the first item of each dropdown, etc.)
-$everyItemUniqueClassPrefix = 'nav-item-'; //Prepended to each item's collection id (leave blank if you don't want a unique class for each item)
-
-//Add any non-semantic markup that should be inserted in each link...
-$beforeOutsideEveryATagMarkup = ''; //<li>[THIS STUFF GOES HERE]<a href="url">text</a></li>
-$afterOutsideEveryATagMarkup = ''; //<li><a href="url">text</a>[THIS STUFF GOES HERE]</li>
-$beforeInsideEveryATagMarkup = ''; //<li><a href="url">[THIS STUFF GOES HERE]text</a></li>
-$afterInsideEveryATagMarkup = ''; //<li><a href="url">text[THIS STUFF GOES HERE]</a></li>
-$bottomOfDropdownsMarkup = ''; //HTML inserted at the bottom of each dropdown menu (items below the top-level) -- use this if you need non-semantic markup for rounded corners, drop-shadows, etc.
-
-//The following attribute handles are NOT installed by Concrete5
-// (if you want to use them, you must set them up via Dashboard -> Pages and Themes -> Attributes)
-$excludeChildrenFromNavAttrHandle = 'exclude_subpages_from_nav'; //Attribute that denotes a page should be excluded from the nav menu (will also exclude the page's children/grandchildren/etc.)
-$replaceLinkWithFirstInNavAttrHandle = 'replace_link_with_first_in_nav'; //Attribute that denotes all of a page's children/grandchildren/etc. should be excluded from the nav menu
-$navItemClassAttrHandle = 'nav_item_class'; //Attribute that allows end-users to provide a specific class name for a page
-
-
-/*********************
- * NOTES FOR DESIGNERS
- *********************/
-
-/* SAMPLE CODE FOR "HARD-CODING" A SINGLE-LEVEL OR TWO-LEVEL DROPDOWN MENU INTO YOUR THEME TEMPLATES:
 <?php
-$nav = BlockType::getByHandle('autonav');
-$nav->controller->orderBy = 'display_asc';
-$nav->controller->displayPages = 'top';
-$nav->controller->displaySubPages = 'all';
-$nav->controller->displaySubPageLevels = 'custom';
-$nav->controller->displaySubPageLevelsNum = 1; //<--change to 2 for a two-level dropdown menu
-$nav->render('view');
-?>
-END SAMPLE CODE */
+/************************************************************
+ * DESIGNERS: SCROLL DOWN! (IGNORE ALL THIS STUFF AT THE TOP)
+ ************************************************************/
+defined('C5_EXECUTE') or die("Access Denied.");
 
-
-/*** Jordan's notes for implementing Superfish dropdown menu from scratch...
-* Download jquery superfish plugin from http://users.tpg.com.au/j_birch/plugins/superfish/ (then click "Download & Support" tab)
-  (Note that jQuery is only used for IE6 compatibility and optional visual effects -- you can just use its CSS if you don't care about IE6 or fancy stuff like dropdown menu fade-ins or dynamically-drawn arrows)
-* Copy superfish.js and hoverIntent.js files to your theme's 'js' directory
-* Copy the 2 image files to your theme's 'images' directory (arrows-ffffff.png and shadow.png)
-* Copy css/superfish.css to your theme's 'css' directory
-* Either change $menuClassOrId up above to 'class="sf-menu"', OR change all instances of "sf-menu" to "nav" in superfish.css
-* In superfish.css, remove quotes from around url paths (this sometimes messes up C5)
-* If you didn't put superfish.css inside a 'css' directory (it's just at the top-level of your theme directory), then change url paths so they correctly point to your theme's images directory (probably need to remove '../' from all paths)
-* Add includes for css and js to theme's <head>:
-    <link rel="stylesheet" type="text/css" href="<?php print $this->getThemePath(); ?>/css/superfish.css" />
-    <script type="text/javascript" src="<?php print $this->getThemePath(); ?>/js/hoverIntent.js"></script>
-    <script type="text/javascript" src="<?php print $this->getThemePath(); ?>/js/superfish.js"></script>
-* Initialize superfish by putting this code in your theme's <head>:
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('ul.nav').superfish({
-                pathClass: 'nav-path-selected',
-                autoArrows: false
-            });
-        });
-    </script>
-* MODIFY "DEMO SKIN" portion of superfish.css to accomodate your site (or remove it entirely if you've already styled the non-dropdown menu in yer css)
-* Set width (and height) of submenus via the 4 comments containing the word "match" in the "ESSENTIAL STYLES" section of the css -- these need to be tweaked as per your theme's style
-  Note that this is not optional: all 3 "match ul width" numbers MUST be the same, otherwise the menu will not look right!
-
-==POTENTIAL CSS PROBS:
-~Use firebug -- for example, superfish overwrites margin and padding to 0, but I had padding on my elements -- so just wrap the thing in a div and style that div instead.
-~You can delete entire arrow section if you don't want that thing
-~If it's not making sense based on top/left, margin/padding, etc. -- try floats and clears!
-
-END Superfish Notes */
-
-
-/**********************************************************
- * DESIGNERS: YOU CAN PROBABLY IGNORE EVERYTHING BELOW HERE
- **********************************************************/
-
-//Initialize variables
-$navItems = $controller->generateNav();
 $c = Page::getCurrentPage();
-$isFirstItem = true;
-$isFirstLiInUl = true;
-$lastLevel = 0;
-$excluded_parent_level = 9999; //Arbitrarily high number denotes that we're NOT currently excluding a parent (because all actual page levels will be lower than this)
-$exclude_children_below_level = 9999; //Same deal as above. Note that in this case "below" means a HIGHER number (because a lower number indicates higher placement in the sitemp -- e.g. 0 is top-level)
-$nh = Loader::helper('navigation');
 
 //Create an array of parent cIDs so we can determine the "nav path" of the current page
-$inspectC=$c;
-$selectedPathCIDs=array( $inspectC->getCollectionID() );
+$inspectC = $c;
+$selectedPathCIDs = array($inspectC->getCollectionID());
 $parentCIDnotZero=true;
-while($parentCIDnotZero){
-	$cParentID=$inspectC->cParentID;
-	if(!intval($cParentID)){
+while ($parentCIDnotZero) {
+	$cParentID = $inspectC->cParentID;
+	if (!intval($cParentID)) {
 		$parentCIDnotZero=false;
-	}else{
+	} else {
 		if ($cParentID != HOME_CID) {
-			$selectedPathCIDs[]=$cParentID; //Don't want home page in nav-path-selected
+			$selectedPathCIDs[] = $cParentID; //Don't want home page in nav-path-selected
 		}
-		$inspectC=Page::getById($cParentID);
+		$inspectC = Page::getById($cParentID);
 	}
 }
 
-//Loop through each page
-foreach($navItems as $ni) {
-	//Determine if this page should be excluded from the nav menu
+//Remove excluded pages from the list (do this first because some of the data prep code needs to "look ahead" in the list)
+$allNavItems = $controller->generateNav();
+$includedNavItems = array();
+$excluded_parent_level = 9999; //Arbitrarily high number denotes that we're NOT currently excluding a parent (because all actual page levels will be lower than this)
+$exclude_children_below_level = 9999; //Same deal as above. Note that in this case "below" means a HIGHER number (because a lower number indicates higher placement in the sitemp -- e.g. 0 is top-level)
+foreach ($allNavItems as $ni) {
 	$_c = $ni->getCollectionObject();
-	if ($_c->getCollectionAttributeValue('exclude_nav') && ($ni->getLevel() <= $excluded_parent_level)) {
-		$excluded_parent_level = $ni->getLevel();
-	} else if ($ni->getLevel() <= $excluded_parent_level && $ni->getLevel() <= $exclude_children_below_level) {
+	$current_level = $ni->getLevel();
+	
+	if ($_c->getAttribute('exclude_nav') && ($current_level <= $excluded_parent_level)) {
+		$excluded_parent_level = $current_level;
+		$exclude_page = true;
+	} else if (($current_level > $excluded_parent_level) || ($current_level > $exclude_children_below_level)) {
+		$exclude_page = true;
+	} else {
 		$excluded_parent_level = 9999; //Reset to arbitrarily high number to denote that we're no longer excluding a parent
-		$exclude_children_below_level = 9999; //Same as above
-		if ($_c->getCollectionAttributeValue($excludeChildrenFromNavAttrHandle)) {
-			$exclude_children_below_level = $ni->getLevel();
-		}
-		
-		
-		//Output opening list tag if this is the first time through the loop
-		if ($isFirstItem) {
-			echo '<ul class="'.$menuUlClass.'">';
-		}
-		
-		//Output appropriate opening/closing list tags depending on where we are in the loop
-		$thisLevel = $ni->getLevel();
-		if ($thisLevel > $lastLevel) {
-			echo '<ul>';
-			$isFirstLiInUl = true;
-		} else if ($thisLevel < $lastLevel) {
-			for ($j = $thisLevel; $j < $lastLevel; $j++) {
-				echo '</li>';
-				echo $bottomOfDropdownsMarkup;
-				echo '</ul>';
-				if ($lastLevel - $j <= 1) {
-					echo '</li>';
-				}
-			}
-		} else if (!$isFirstItem) {
-			echo '</li>';
-		} //if this is the first item, the closing </li> tag will be outputted down at the bottom (after the "foreach($navItems as $ni)" loop)
-		
-
-		//PREP DATA FOR NAV ITEM OUTPUT...
-
-		$pageName = $ni->getName();
-
-		//Page URL (might be first child page instead of this page)
-		$pageLink = false;
-		if ($_c->getCollectionAttributeValue($replaceLinkWithFirstInNavAttrHandle)) {
-			$subPage = $_c->getFirstChild();
-			if ($subPage instanceof Page) {
-				$pageLink = $nh->getLinkToCollection($subPage);
-			}
-		}
-		if (!$pageLink) {
-			$pageLink = $ni->getURL();
-		}
-		
-		//Link target (e.g. open in new window)
-		$target = $ni->getTarget();
-		$target = empty($target) ? '_self' : $target;
-		
-		
-		//CSS Classes...
-		$navItemClassArray = array();
-		
-		if (!empty($everyItemUniqueClassPrefix)) {
-			$navItemClassArray[] = $everyItemUniqueClassPrefix . $_c->getCollectionID();
-		}
-		
-		if ($isFirstLiInUl && !empty($firstLiInUlClass)) {
-			$navItemClassArray[] = $firstLiInUlClass;
-		}
-		
-		if ($ni->hasChildren() && !empty($hasChildrenClass)) {
-			$navItemClassArray[] = $hasChildrenClass;
-		}
-		
-		if (!empty($navItemClassAttrHandle)) {
-			$attributeClass = $_c->getCollectionAttributeValue($navItemClassAttrHandle);
-			if (!empty($attributeClass)) {
-				$navItemClassArray[] = $attributeClass;
-			}
-		}
-		
-		if ($c->getCollectionID() == $_c->getCollectionID()) {
-			//This nav item is for the page being viewed
-			$navItemClassArray[] = $navSelectedClass;
-			$navItemClassArray[] = $navPathSelectedClass;
-		} else if (in_array($_c->getCollectionID(), $selectedPathCIDs)) {
-			//This nav item is for a parent/grandparent of the page being viewed
-			$navItemClassArray[] = $navPathSelectedClass;
-		}
-		
-		$navItemClasses = implode(" ", $navItemClassArray);
-		//END CSS Classes
-		
-		
-		//Output the opening <li> tag and the page link
-		echo '<li class="' . $navItemClasses . '">';
-		echo $beforeOutsideEveryATagMarkup;
-		echo '<a class="' . $navItemClasses . '" href="' . $pageLink . '" target="' . $target . '">';
-		echo $beforeInsideEveryATagMarkup;
-		echo $pageName;
-		echo $afterInsideEveryATagMarkup;
-		echo '</a>';
-		echo $afterOutsideEveryATagMarkup;
-		//Note that we're not outputting the closing </li> tag here
-		// because we might need to put in a sub-menu (<ul>) first.
-		// The closing </li> tag will be outputted later on
-		
-		
-		//Prep variables for the next loop iteration
-		$lastLevel = $thisLevel;
-		$isFirstItem = false;
-		$isFirstLiInUl = false;
+		$exclude_children_below_level = $_c->getAttribute('exclude_subpages_from_nav') ? $current_level : 9999;
+		$exclude_page = false;
+	}
+	
+	if (!$exclude_page) {
+		$includedNavItems[] = $ni;
 	}
 }
 
-//Output closing list tags if necessary
-if (count($navItems) > 0) {
-	for ($i = 0; $i <= $lastLevel; $i++) {
-		echo '</li>';
-		echo ($lastLevel > 0 && $i == 0) ? $bottomOfDropdownsMarkup : '';
-		echo '</ul>';
+//Prep all data and put it into a clean data structure so markup output is as simple as possible
+$navItems = array();
+$navItemCount = count($includedNavItems);
+for ($i = 0; $i < $navItemCount; $i++) {
+	$ni = $includedNavItems[$i];
+	$_c = $ni->getCollectionObject();
+	$current_level = $ni->getLevel();
+	
+	//Link target (e.g. open in new window)
+	$target = $ni->getTarget();
+	$target = empty($target) ? '_self' : $target;
+	
+	//Link URL
+	$pageLink = false;
+	if ($_c->getAttribute('replace_link_with_first_in_nav')) {
+		$subPage = $_c->getFirstChild(); //Note: could be a rare bug here if first child was excluded, but this is so unlikely (and can be solved by moving it in the sitemap) that it's not worth the trouble to check
+		if ($subPage instanceof Page) {
+			$pageLink = Loader::helper('navigation')->getLinkToCollection($subPage); //We could optimize by instantiating the navigation helper outside the loop, but this is such an infrequent attribute that I prefer code clarity over performance in this case
+		}
+	}			
+	if (!$pageLink) {
+		$pageLink = $ni->getURL();
+	}
+		
+	//Current/ancestor page
+	$selected = false;
+	$path_selected = false;
+	if ($c->getCollectionID() == $_c->getCollectionID()) { 
+		$selected = true; //Current item is the page being viewed
+		$path_selected = true;
+	} elseif (in_array($_c->getCollectionID(), $selectedPathCIDs)) { 
+		$path_selected = true; //Current item is an ancestor of the page being viewed
+	}			 
+	
+	//Calculate difference between this item's level and next item's level so we know how many closing tags to output in the markup
+	$next_level = isset($includedNavItems[$i+1]) ? $includedNavItems[$i+1]->getLevel() : 0;
+	$levels_between_this_and_next = $current_level - $next_level;
+
+	//Determine if this item has children (can't rely on $ni->hasChildren() because it doesn't ignore excluded items!)
+	$has_children = $next_level > $current_level;
+	
+	//Calculate if this is the first item in its level (useful for CSS classes)
+	$prev_level = isset($includedNavItems[$i-1]) ? $includedNavItems[$i-1]->getLevel() : -1;
+	$is_first_in_level = $current_level > $prev_level;
+	
+	//Calculate if this is the last item in its level (useful for CSS classes)
+	$is_last_in_level = true;
+	for ($j = $i+1; $j < $navItemCount; $j++) {
+		if ($includedNavItems[$j]->getLevel() == $current_level) {
+			//we found a subsequent item at this level (before this level "ended"), so this is NOT the last in its level
+			$is_last_in_level = false;
+			break;
+		}
+		if ($includedNavItems[$j]->getLevel() < $current_level) {
+			//we found a previous level before any other items in this level, so this IS the last in its level
+			$is_last_in_level = true;
+			break;
+		}
+	} //If loop ends before one of the "if" conditions is hit, then this is the last in its level (and $is_last_in_level stays true)
+	
+	
+	//CSS classes...
+	$attribute_class = $_c->getAttribute('nav_item_class');
+	$cid = $_c->getCollectionID();
+	$classes = array();
+	
+/******************************************************************************
+* DESIGNERS: CUSTOMIZE CSS CLASSES HERE...
+*/
+	if ($selected) {
+		//class for the page currently being viewed
+		$classes[] = 'nav-selected';
+	}
+	
+	if ($path_selected) {
+		//class for parent items of the page currently being viewed
+		$classes[] = 'nav-path-selected';
+	}
+	
+	if ($is_first_in_level) {
+		//class for the first item in each menu section (first top-level item, and first item of each dropdown sub-menu)
+		$classes[] = 'nav-first';
+	}
+	
+	if ($is_last_in_level) {
+		//class for the last item in each menu section (last top-level item, and last item of each dropdown sub-menu)
+		$classes[] = 'nav-last';
+	}
+	
+	if ($has_children) {
+		//class for items that have dropdown sub-menus
+		$classes[] = 'nav-dropdown';
+	}
+	
+	if (!empty($attribute_class)) {
+		//class that can be set by end-user via the 'nav_item_class' custom page attribute
+		$classes[] = $attribute_class;
+	}
+	
+	//unique class for every single menu item (disabled by default -- uncomment the next line to enable it)
+	//$classes[] = 'nav-item-' . $cid;
+
+	
+/* END CSS CLASSESS (DESIGNERS: SCROLL DOWN A LITTLE MORE TO GET TO HTML)
+ *****************************************************************************/
+
+	$classes = array_filter($classes); //remove empty/null items
+	$classesString = implode(" ", $classes);
+	
+	
+	//Package up all the data
+	$item = new stdClass();
+	$item->url = $pageLink;
+	$item->name = $ni->getName();
+	$item->target = $target;
+	$item->classes = $classesString;
+	$item->children = $has_children;
+	$item->depth = $levels_between_this_and_next;
+	$navItems[] = $item;
+}
+
+/******************************************************************************
+* DESIGNERS: CUSTOMIZE THE NAV MENU HTML STARTING HERE...
+*/
+
+echo '<ul class="nav">'; //opens the top-level menu
+
+foreach ($navItems as $ni) {
+	
+	echo '<li class="' . $ni->classes . '">'; //opens the nav item
+	
+	echo '<a href="' . $ni->url . '" target="' . $ni->target . '" class="' . $ni->classes . '">' . $ni->name . '</a>'; //link to page
+	
+	if ($ni->children) {
+		echo '<ul>'; //opens a dropdown sub-menu
+	} else {
+		echo '</li>'; //closes the nav item
+		echo str_repeat('</ul></li>', $ni->depth); //closes dropdown sub-menu(s) and their top-level nav item(s)
 	}
 }
 
-?>
+echo '</ul>'; //closes the top-level menu
