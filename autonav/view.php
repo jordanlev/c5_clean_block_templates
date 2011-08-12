@@ -180,6 +180,9 @@ for ($i = 0; $i < $navItemCount; $i++) {
 	$item->classes = $classesString;
 	$item->children = $has_children;
 	$item->depth = $levels_between_this_and_next;
+	$item->first = $is_first_in_level;
+	$item->last = $is_last_in_level;
+	$item->current = $selected;
 	$navItems[] = $item;
 }
 
