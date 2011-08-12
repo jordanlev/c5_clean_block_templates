@@ -62,7 +62,14 @@ if ($paginate && $num > 0 && is_object($pl)) {
 	 	 *      (Replace "64" with max width, "9999" with max height. The "9999" effectively means "no maximum size" for that particular dimension.)
 		 *      (If you're on Concrete5.4.2 or higher, you can also pass a 4th argument of TRUE to enable cropping.)
 		 * 3) Output the image tag below like this:
-		 *		<img src="<?php echo $thumb->src ?>" width="<?php echo $thumb->width ?>" height="<?php echo $thumb->height ?>" alt="" />
+		 * 	    <img src="<?php echo $thumb->src ?>" width="<?php echo $thumb->width ?>" height="<?php echo $thumb->height ?>" alt="" />
+		 *
+		 * ~OR~ IF YOU DO NOT WANT IMAGES TO BE RESIZED:
+		 * 1) Put in some code here like the following 2 lines:
+		 * 	    $img_src = $img->getRelativePath();
+		 * 	    list($img_width, $img_height) = getimagesize($img->getPath());
+		 * 2) Output the image tag below like this:
+		 * 	    <img src="<?php echo $img_src ?>" width="<?php echo $img_width ?>" height="<?php echo $img_height ?>" alt="" />
 		 */
 
 		
