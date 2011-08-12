@@ -7,7 +7,7 @@
 //
 // 2) Handle: exclude_subpages_from_nav
 //    Type: Checkbox
-//    Functionality: If a page has this checked, all of that pages children (sub-pages) will be excluded from the nav (but the page itself will be included).
+//    Functionality: If a page has this checked, all of that pages children (sub-pages) will be excluded from the nav menu (but the page itself will be included).
 //
 // 3) Handle: nav_item_class
 //    Type: Text
