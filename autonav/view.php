@@ -122,89 +122,110 @@ for ($i = 0; $i < $navItemCount; $i++) {
 		}
 	} //If loop ends before one of the "if" conditions is hit, then this is the last in its level (and $is_last_in_level stays true)
 	
-	
-	//CSS classes
+	//Custom CSS class
 	$attribute_class = $_c->getAttribute('nav_item_class');
-	$cid = $_c->getCollectionID();
+	$attribute_class = empty($attribute_class) ? '' : $attribute_class;
+	
+	//Page ID stuff
+	$item_cid = $_c->getCollectionID();
+	$is_home_page = ($item_cid == HOME_CID);
+	
+	
+	//Package up all the data
+	$navItem = new stdClass();
+	$navItem->url = $pageLink;
+	$navItem->name = $ni->getName();
+	$navItem->target = $target;
+	$navItem->sub_depth = $levels_between_this_and_next;
+	$navItem->level = $current_level + 1; //make this 1-based instead of 0-based (more human-friendly)
+	$navItem->has_submenu = $has_children;
+	$navItem->is_first = $is_first_in_level;
+	$navItem->is_last = $is_last_in_level;
+	$navItem->is_current = $selected;
+	$navItem->in_path = $path_selected;
+	$navItem->attribute_class = $attribute_class;
+	$navItem->cid = $item_cid;
+	$navItem->is_home = $is_home_page;
+	$navItems[] = $navItem;
+}
+
+/******************************************************************************
+* DESIGNERS: CUSTOMIZE THE CSS CLASSES STARTING HERE...
+*/
+foreach ($navItems as $ni) {
 	$classes = array();
 	
-/******************************************************************************
-* DESIGNERS: CUSTOMIZE CSS CLASSES HERE...
-*/
-	if ($selected) {
+	if ($ni->is_current) {
 		//class for the page currently being viewed
 		$classes[] = 'nav-selected';
 	}
 	
-	if ($path_selected) {
+	if ($ni->in_path) {
 		//class for parent items of the page currently being viewed
 		$classes[] = 'nav-path-selected';
 	}
 	
-	if ($is_first_in_level) {
+	/*
+	if ($ni->is_first) {
 		//class for the first item in each menu section (first top-level item, and first item of each dropdown sub-menu)
 		$classes[] = 'nav-first';
 	}
+	*/
 	
-	if ($is_last_in_level) {
+	/*
+	if ($ni->is_last) {
 		//class for the last item in each menu section (last top-level item, and last item of each dropdown sub-menu)
 		$classes[] = 'nav-last';
 	}
+	*/
 	
-	if ($has_children) {
+	/*
+	if ($ni->has_submenu) {
 		//class for items that have dropdown sub-menus
 		$classes[] = 'nav-dropdown';
 	}
+	*/
 	
-	if (!empty($attribute_class)) {
+	/*
+	if (!empty($ni->attribute_class)) {
 		//class that can be set by end-user via the 'nav_item_class' custom page attribute
 		$classes[] = $attribute_class;
 	}
+	*/
 	
-	//unique class for every single menu item (disabled by default -- uncomment the next line to enable it)
+	/*
+	if ($ni->is_home) {
+		//home page
+		$classes[] 'nav-home';
+	}
+	*/
+	
+	/*
+	//unique class for every single menu item
 	//$classes[] = 'nav-item-' . $cid;
-
+	*/
 	
-/* END CSS CLASSESS (DESIGNERS: SCROLL DOWN A LITTLE MORE TO GET TO HTML)
- *****************************************************************************/
-
-	$classes = array_filter($classes); //remove empty/null items
-	$classesString = implode(" ", $classes);
-	
-	
-	//Package up all the data
-	$item = new stdClass();
-	$item->url = $pageLink;
-	$item->name = $ni->getName();
-	$item->target = $target;
-	$item->classes = $classesString;
-	$item->children = $has_children;
-	$item->depth = $levels_between_this_and_next;
-	$item->first = $is_first_in_level;
-	$item->last = $is_last_in_level;
-	$item->current = $selected;
-	$item->level = $current_level + 1; //make this 1-based instead of 0-based (more human-friendly)
-	$item->cid = $cid;
-	$navItems[] = $item;
+	//Put all classes together into one space-separated string
+	$ni->classes = implode(" ", $classes);
 }
 
 /******************************************************************************
-* DESIGNERS: CUSTOMIZE THE NAV MENU HTML STARTING HERE...
+* DESIGNERS: CUSTOMIZE THE HTML STARTING HERE...
 */
 
 echo '<ul class="nav">'; //opens the top-level menu
 
 foreach ($navItems as $ni) {
 	
-	echo '<li class="' . $ni->classes . '">'; //opens the nav item
+	echo '<li class="' . $ni->classes . '">'; //opens a nav item
 	
 	echo '<a href="' . $ni->url . '" target="' . $ni->target . '" class="' . $ni->classes . '">' . $ni->name . '</a>';
 	
-	if ($ni->children) {
+	if ($ni->has_submenu) {
 		echo '<ul>'; //opens a dropdown sub-menu
 	} else {
-		echo '</li>'; //closes the nav item
-		echo str_repeat('</ul></li>', $ni->depth); //closes dropdown sub-menu(s) and their top-level nav item(s)
+		echo '</li>'; //closes a nav item
+		echo str_repeat('</ul></li>', $ni->sub_depth); //closes dropdown sub-menu(s) and their top-level nav item(s)
 	}
 }
 
