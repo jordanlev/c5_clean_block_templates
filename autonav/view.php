@@ -1,5 +1,5 @@
 <?php
-//For extra functionality, you can add the following page attributes (via Dashboard -> Pages and Themes -> Attributes):
+//NOTE: For extra functionality, you can add the following page attributes (via Dashboard -> Pages and Themes -> Attributes):
 //
 // 1) Handle: replace_link_with_first_in_nav
 //    Type: Checkbox
@@ -183,6 +183,8 @@ for ($i = 0; $i < $navItemCount; $i++) {
 	$item->first = $is_first_in_level;
 	$item->last = $is_last_in_level;
 	$item->current = $selected;
+	$item->level = $current_level + 1; //make this 1-based instead of 0-based (more human-friendly)
+	$item->cid = $cid;
 	$navItems[] = $item;
 }
 
