@@ -71,8 +71,15 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		 * 2) Output the image tag below like this:
 		 * 	    <img src="<?php echo $img_src ?>" width="<?php echo $img_width ?>" height="<?php echo $img_height ?>" alt="" />
 		 */
-
-		
+		 
+        /* Display actual page content from an area:
+         *     <?php
+         *     $a = new Area('Excerpt');
+         *     $a->disableControls();
+         *     $a->display($page);
+         *     ?>
+		 */
+		 
 		/* Here comes the most important part of the template! The html from here down to the "endforeach" line is repeated for each page in the list... */ ?>
 
 		<h3 class="ccm-page-list-title">
