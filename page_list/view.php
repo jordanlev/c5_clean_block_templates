@@ -78,7 +78,6 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		 *     $a->disableControls();
 		 *     $a->display($page);
 		 *     ?>
-		 *
 		 */
 		 
 		/* Here comes the most important part of the template! The html from here down to the "endforeach" line is repeated for each page in the list... */ ?>
