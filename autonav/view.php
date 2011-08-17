@@ -196,7 +196,7 @@ foreach ($navItems as $ni) {
 	/*
 	if ($ni->is_home) {
 		//home page
-		$classes[] 'nav-home';
+		$classes[] = 'nav-home';
 	}
 	*/
 	
