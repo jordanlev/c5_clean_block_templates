@@ -43,8 +43,12 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		$url = $nh->getLinkToCollection($page);
 		$target = ($page->getCollectionPointerExternalLink() != '' && $page->openCollectionPointerExternalLinkInNewWindow()) ? '_blank' : $page->getAttribute('nav_target');
 		$target = empty($target) ? '_self' : $target;
+
 		$description = $page->getCollectionDescription();
-		$description = $controller->truncateSummaries ? $th->shorten($description, $controller->truncateChars) : $description;
+		if ($controller->truncateSummaries) {
+			$description = $th->shorten($description, $controller->truncateChars); //Concrete5.4.2.1 and lower
+			//$description = $th->shortenTextWord($description, $controller->truncateChars); //Concrete5.4.2.2 and higher
+		}
 		$description = $th->entities($description);
 		
 		//Other useful page data...
@@ -72,15 +76,48 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		 * 	    <img src="<?php echo $img_src ?>" width="<?php echo $img_width ?>" height="<?php echo $img_height ?>" alt="" />
 		 */
 		 
-		/* Display actual page content from an area:
+		/* HOW TO DISPLAY ACTUAL PAGE CONTENT:
+		 *
+		 * Display an entire area:
 		 *     <?php
-		 *     $a = new Area('Excerpt');
+		 *     $a = new Area('Main'); //change 'Main' to the name of the area you want to display
 		 *     $a->disableControls();
 		 *     $a->display($page);
 		 *     ?>
+		 *
+		 * Display first block in an area (note that this doesn't work if the area has "Layouts"):
+		 *     <?php
+		 *     $pageBlocks = $page->getBlocks('Main'); //change 'Main' to the name of the area you want to display a block from
+		 *     if (count($pageBlocks) > 0) {
+		 *         $firstBlock = $pageBlocks[0];
+		 *         $firstBlock->display();
+		 *     }
+		 *     ?>
+		 *
+		 * Display excerpt of first "content" block in an area (note that this doesn't work if the area has "Layouts"):
+		 *     <?php
+		 *     $excerpt = '';
+		 *     $pageBlocks = $page->getBlocks('Main');
+		 *     if (count($pageBlocks) > 0) {
+		 *         foreach ($pageBlocks as $pb) {
+		 *             if ($pb->btHandle == 'content') {
+		 *                 $excerpt = $pb->getInstance()->getContent(); //NOTE: getContent() function is specific to the content block type -- it cannot be called on just any kind of block!
+		 *     	           if ($controller->truncateSummaries) {
+		 *     	               $excerpt = $th->shorten($excerpt, $controller->truncateChars); //Concrete5.4.2.1 and lower
+		 *     	               //$excerpt = $th->shortenTextWord($excerpt, $controller->truncateChars); //Concrete5.4.2.2 and higher
+		 *     	           }
+		 *                 break;
+		 *     	       }
+		 *         }
+		 *     }
+		 *     echo $excerpt;
+		 *     ?>
+ 		 *
 		 */
-		 
-		/* Here comes the most important part of the template! The html from here down to the "endforeach" line is repeated for each page in the list... */ ?>
+
+
+
+		/*** Here comes the most important part of the template! The html from here down to the "endforeach" line is repeated for each page in the list... */ ?>
 
 		<h3 class="ccm-page-list-title">
 			<a href="<?php echo $url ?>" target="<?php echo $target ?>"><?php echo $title ?></a>
