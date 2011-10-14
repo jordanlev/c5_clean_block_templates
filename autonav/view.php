@@ -189,7 +189,7 @@ foreach ($navItems as $ni) {
 	/*
 	if (!empty($ni->attribute_class)) {
 		//class that can be set by end-user via the 'nav_item_class' custom page attribute
-		$classes[] = $attribute_class;
+		$classes[] = $ni->attribute_class;
 	}
 	*/
 	
@@ -202,7 +202,7 @@ foreach ($navItems as $ni) {
 	
 	/*
 	//unique class for every single menu item
-	//$classes[] = 'nav-item-' . $cid;
+	//$classes[] = 'nav-item-' . $ni->cid;
 	*/
 	
 	//Put all classes together into one space-separated string
