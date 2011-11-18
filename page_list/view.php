@@ -69,11 +69,18 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		 * 	    <img src="<?php echo $thumb->src ?>" width="<?php echo $thumb->width ?>" height="<?php echo $thumb->height ?>" alt="" />
 		 *
 		 * ~OR~ IF YOU DO NOT WANT IMAGES TO BE RESIZED:
-		 * 1) Put in some code here like the following 2 lines:
+		 * 1) Put in some code here like the following 3 lines:
+		 * 	    $img = $page->getAttribute('example_image_attribute_handle');
 		 * 	    $img_src = $img->getRelativePath();
 		 * 	    list($img_width, $img_height) = getimagesize($img->getPath());
 		 * 2) Output the image tag below like this:
 		 * 	    <img src="<?php echo $img_src ?>" width="<?php echo $img_width ?>" height="<?php echo $img_height ?>" alt="" />
+		 *
+		 * ~NOTE: In both examples above, if you aren't sure the attribute will be set, you can check it like so:
+		 * 	    $img = $page->getAttribute('example_image_attribute_handle');
+		 * 	    if ($img) {
+		 * 	        //...
+		 * 	    }
 		 */
 		 
 		/* HOW TO DISPLAY ACTUAL PAGE CONTENT:
