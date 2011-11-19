@@ -144,8 +144,9 @@ for ($i = 0; $i < $navItemCount; $i++) {
 	$navItem->is_current = $selected;
 	$navItem->in_path = $path_selected;
 	$navItem->attribute_class = $attribute_class;
-	$navItem->cid = $item_cid;
 	$navItem->is_home = $is_home_page;
+	$navItem->cid = $item_cid;
+	$navItem->c = $_c;
 	$navItems[] = $navItem;
 }
 
