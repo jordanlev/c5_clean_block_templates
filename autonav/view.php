@@ -231,3 +231,5 @@ foreach ($navItems as $ni) {
 }
 
 echo '</ul>'; //closes the top-level menu
+
+?>
