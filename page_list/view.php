@@ -101,7 +101,23 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		 *     }
 		 *     ?>
 		 *
+		 * Same as above but put block output into a variable for further processing
+		 * (warning -- this could be dangerous if you remove part of the content and leave unclosed HTML tags!)
+		 *     <?php
+		 *     $pageBlocks = $page->getBlocks('Main'); //change 'Main' to the name of the area you want to display a block from
+		 *     if (count($pageBlocks) > 0) {
+		 *         $firstBlock = $pageBlocks[0];
+		 *         ob_start();
+		 *         $firstBlock->display();
+		 *         $blockContent = ob_get_contents();
+		 *         ob_end_clean();
+		 *     }
+		 *     echo do_something_to_content($blockContent); //CAUTION: Content most likely contains HTML snippet -- don't leave unclosed tags!!
+		 *     ?>
+		 *
 		 * Display excerpt of first "content" block in an area (note that this doesn't work if the area has "Layouts"):
+		 * (This is "safer" than the above method because it strips HTML tags so you don't have to worry about unclosed tags,
+		 *  but the downside is that it only works for "content" block types).
 		 *     <?php
 		 *     $excerpt = '';
 		 *     $pageBlocks = $page->getBlocks('Main');
@@ -119,7 +135,7 @@ if ($paginate && $num > 0 && is_object($pl)) {
 		 *     }
 		 *     echo $excerpt;
 		 *     ?>
- 		 *
+		 *
 		 */
 
 
