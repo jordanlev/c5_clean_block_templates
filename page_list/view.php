@@ -7,7 +7,7 @@ defined('C5_EXECUTE') or die("Access Denied.");
 $pages = $cArray;
 $th = Loader::helper('text');
 //$ih = Loader::helper('image');
-
+$i=1;
 $showRss = false;
 if (!$previewMode && $controller->rss) {
 	$showRss = true;
@@ -50,6 +50,8 @@ if ($paginate && $num > 0 && is_object($pl)) {
 			//$description = $th->shortenTextWord($description, $controller->truncateChars); //Concrete5.4.2.2 and higher
 		}
 		$description = $th->entities($description);
+		$pageObj=Page::getByID($page->getCollectionID());
+		$type=$pageObj->getCollectionTypeHandle();
 		
 		//Other useful page data...
 		//$date = date('F j, Y', strtotime($page->getCollectionDatePublic()));
@@ -142,14 +144,15 @@ if ($paginate && $num > 0 && is_object($pl)) {
 
 		/*** Here comes the most important part of the template! The html from here down to the "endforeach" line is repeated for each page in the list... */ ?>
 
-		<h3 class="ccm-page-list-title">
+		<h3 class="ccm-page-list-title <?php echo $type.' '.$title.' '.$i;?>">
 			<a href="<?php echo $url ?>" target="<?php echo $target ?>"><?php echo $title ?></a>
 		</h3>
-		<div class="ccm-page-list-description">
+		<div class="ccm-page-list-description <?php echo $type.' '.$title.' '.$i;?>">
 			<?php echo $description ?>
 		</div>
 
-	<?php endforeach; ?>
+	<?php $i++;
+	endforeach; ?>
  
 <?php /* The rest of the template is for the RSS icon and pagination links, which generally don't need to be changed. */ ?>
 
