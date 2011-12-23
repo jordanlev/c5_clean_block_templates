@@ -6,7 +6,8 @@ defined('C5_EXECUTE') or die("Access Denied.");
 
 $pages = $cArray;
 $th = Loader::helper('text');
-//$ih = Loader::helper('image');
+//$ih = Loader::helper('image'); //<--uncomment this if generating thumbnails below
+//$nh is already set for us by the controller
 
 $showRss = false;
 if (!$previewMode && $controller->rss) {
