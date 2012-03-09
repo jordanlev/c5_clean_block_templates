@@ -203,7 +203,7 @@ foreach ($navItems as $ni) {
 	
 	/*
 	//unique class for every single menu item
-	//$classes[] = 'nav-item-' . $ni->cid;
+	$classes[] = 'nav-item-' . $ni->cid;
 	*/
 	
 	//Put all classes together into one space-separated string
