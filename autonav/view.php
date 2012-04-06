@@ -143,18 +143,18 @@ for ($i = 0; $i < $navItemCount; $i++) {
 	$navItem->url = $pageLink;
 	$navItem->name = $ni->getName();
 	$navItem->target = $target;
-	$navItem->sub_depth = $levels_between_this_and_next;
 	$navItem->level = $current_level + 1; //make this 1-based instead of 0-based (more human-friendly)
-	$navItem->has_submenu = $has_children;
-	$navItem->is_first = $is_first_in_level;
-	$navItem->is_last = $is_last_in_level;
-	$navItem->is_current = $selected;
-	$navItem->in_path = $path_selected;
-	$navItem->attribute_class = $attribute_class;
-	$navItem->is_enabled = !$disableLink;
-	$navItem->is_home = $is_home_page;
-	$navItem->cid = $item_cid;
-	$navItem->c = $_c;
+	$navItem->subDepth = $levels_between_this_and_next;
+	$navItem->hasSubmenu = $has_children;
+	$navItem->isFirst = $is_first_in_level;
+	$navItem->isLast = $is_last_in_level;
+	$navItem->isCurrent = $selected;
+	$navItem->inPath = $path_selected;
+	$navItem->attrClass = $attribute_class;
+	$navItem->isEnabled = !$disableLink;
+	$navItem->isHome = $is_home_page;
+	$navItem->cID = $item_cid;
+	$navItem->cObj = $_c;
 	$navItems[] = $navItem;
 }
 
@@ -164,46 +164,46 @@ for ($i = 0; $i < $navItemCount; $i++) {
 foreach ($navItems as $ni) {
 	$classes = array();
 	
-	if ($ni->is_current) {
+	if ($ni->isCurrent) {
 		//class for the page currently being viewed
 		$classes[] = 'nav-selected';
 	}
 	
-	if ($ni->in_path) {
+	if ($ni->inPath) {
 		//class for parent items of the page currently being viewed
 		$classes[] = 'nav-path-selected';
 	}
 	
 	/*
-	if ($ni->is_first) {
+	if ($ni->isFirst) {
 		//class for the first item in each menu section (first top-level item, and first item of each dropdown sub-menu)
 		$classes[] = 'nav-first';
 	}
 	*/
 	
 	/*
-	if ($ni->is_last) {
+	if ($ni->isLast) {
 		//class for the last item in each menu section (last top-level item, and last item of each dropdown sub-menu)
 		$classes[] = 'nav-last';
 	}
 	*/
 	
 	/*
-	if ($ni->has_submenu) {
+	if ($ni->hasSubmenu) {
 		//class for items that have dropdown sub-menus
 		$classes[] = 'nav-dropdown';
 	}
 	*/
 	
 	/*
-	if (!empty($ni->attribute_class)) {
+	if (!empty($ni->attrClass)) {
 		//class that can be set by end-user via the 'nav_item_class' custom page attribute
-		$classes[] = $ni->attribute_class;
+		$classes[] = $ni->attrClass;
 	}
 	*/
 	
 	/*
-	if ($ni->is_home) {
+	if ($ni->isHome) {
 		//home page
 		$classes[] = 'nav-home';
 	}
@@ -211,7 +211,7 @@ foreach ($navItems as $ni) {
 	
 	/*
 	//unique class for every single menu item
-	$classes[] = 'nav-item-' . $ni->cid;
+	$classes[] = 'nav-item-' . $ni->cID;
 	*/
 	
 	//Put all classes together into one space-separated string
@@ -228,17 +228,17 @@ foreach ($navItems as $ni) {
 	
 	echo '<li class="' . $ni->classes . '">'; //opens a nav item
 	
-	if ($ni->is_enabled) {
+	if ($ni->isEnabled) {
 		echo '<a href="' . $ni->url . '" target="' . $ni->target . '" class="' . $ni->classes . '">' . $ni->name . '</a>';
 	} else {
 		echo '<span class="' . $ni->classes . '">' . $ni->name . '</span>';
 	}
 	
-	if ($ni->has_submenu) {
+	if ($ni->hasSubmenu) {
 		echo '<ul>'; //opens a dropdown sub-menu
 	} else {
 		echo '</li>'; //closes a nav item
-		echo str_repeat('</ul></li>', $ni->sub_depth); //closes dropdown sub-menu(s) and their top-level nav item(s)
+		echo str_repeat('</ul></li>', $ni->subDepth); //closes dropdown sub-menu(s) and their top-level nav item(s)
 	}
 }
 
