@@ -9,13 +9,14 @@
 //    Type: Checkbox
 //    Functionality: If a page has this checked, all of that pages children (sub-pages) will be excluded from the nav menu (but the page itself will be included).
 //
-// 3) Handle: nav_item_class
-//    Type: Text
-//    Functionality: Whatever is entered into this textbox will be outputted as an additional CSS class for that page's nav item.
-//
-// 4) Handle: disable_link_in_nav
+// 3) Handle: disable_link_in_nav
 //    Type: Checkbox
 //    Functionality: If a page has this checked, it will appear in the nav menu but will not be "clickable" (will not link to any page).
+//
+// 4) Handle: nav_item_class
+//    Type: Text
+//    Functionality: Whatever is entered into this textbox will be outputted as an additional CSS class for that page's nav item (NOTE: you must un-comment the "$ni->attrClass" code block in the CSS section below for this to work).
+
 
 
 /*************************************************
