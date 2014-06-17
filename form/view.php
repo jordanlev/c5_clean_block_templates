@@ -35,7 +35,7 @@ while ($questionRow = $questionsRS->fetchRow()) {
 	//Construct label "for" (and add id's to inputs so they work)
 	$question['input'] = str_replace(' id=""', '', $question['input']); //clean up silly file elements which for some reason have an id attribute but it's always empty (if we left this in, it would mess up our code below that inserts an actual id)
 	$hasIdAlready = (strpos($question['input'], ' id="') !== false); //sanity check (as of this writing, c5 doesn't give id's to any form fields -- but maybe in the future?)
-	$canBeLabelled = in_array($question['type'], array('text', 'textarea', 'select', 'fileupload')); //checkboxlist and radios can't get labels because they have multiple inputs (ideally the text of each answer would be a label, but that's too much hackery for us to do safely here in the template)
+	$canBeLabelled = in_array($question['type'], array('email', 'telephone', 'text', 'textarea', 'select', 'fileupload')); //checkboxlist and radios can't get labels because they have multiple inputs (ideally the text of each answer would be a label, but that's too much hackery for us to do safely here in the template)
 	if (!$hasIdAlready && $canBeLabelled) {
 		$domId = "form{$bID}_question{$questionRow['msqID']}";
 		if ($question['type'] == 'text' || $question['type'] == 'fileupload') {
@@ -52,6 +52,12 @@ while ($questionRow = $questionsRS->fetchRow()) {
 			$question['input'] = str_replace($search, $replace, $question['input']);
 		}
 		$question['labelFor'] = " for=\"{$domId}\"";
+	} else if ($canBeLabelled) {
+		preg_match('/id="([\w])+"/', $question['input'], $matches);
+		if (count($matches)) {
+			$domId = str_replace('"', '', substr($matches[0], 3));
+			$question['labelFor'] = " for=\"{$domId}\"";
+		}
 	} else {
 		$question['labelFor'] = '';
 	}
